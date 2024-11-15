@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeVideo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        .title-container {
+            background-color: yellow;
+            color: black;
+            text-align: center;
+            padding: 20px;
+            font-size: 2em;
+            position: relative;
+        }
+        .settings-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #333;
+            color: white;
+            font-size: 2em;
+            width: 40px;
+            height: 40px;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .settings-btn:hover {
+            background-color: #555;
+        }
+        .upload-btn {
+            display: block;
+            width: 70px;
+            height: 70px;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+        .contact-info {
+            text-align: center;
+            font-size: 1em;
+            margin-top: 20px;
+        }
+        .video-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .video-container video {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .video-container button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .video-container button:hover {
+            background-color: darkred;
+        }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .terms-popup, .privacy-popup {
+            display: none;
+            position: fixed;
+            top: 20%;
+            left: 10%;
+            right: 10%;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            z-index: 1000;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="title-container">
+        FreeVideo
+        <button class="settings-btn" onclick="toggleSettingsMenu()">...</button>
+    </div>
+
+    <div class="contact-info">
+        <p>Support: kamransarparah50@gmail.com</p>
+        <p>Phone: 03367027845</p>
+    </div>
+
+    <button class="upload-btn" onclick="openFileDialog()">+</button>
+
+    <div class="video-container" id="video-container">
+        <!-- Videos will be displayed here -->
+    </div>
+
+    <div class="popup-overlay" id="popup-overlay"></div>
+    <div class="terms-popup" id="terms-popup">
+        <h2>Terms of Service</h2>
+        <p>By using this app, you agree to our terms and conditions...</p>
+        <button onclick="closePopups()">Close</button>
+    </div>
+
+    <div class="privacy-popup" id="privacy-popup">
+        <h2>Privacy Policy</h2>
+        <p>We value your privacy...</p>
+        <button onclick="closePopups()">Close</button>
+    </div>
+
+    <script>
+        let uploadedVideos = [];
+
+        function openFileDialog() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'video/*';
+            input.onchange = handleFileUpload;
+            input.click();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const videoUrl = URL.createObjectURL(file);
+                const videoElement = document.createElement('video');
+                videoElement.src = videoUrl;
+                videoElement.controls = true;
+                videoElement.width = 300;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => deleteVideo(videoUrl);
+
+                const videoDiv = document.createElement('div');
+                videoDiv.appendChild(videoElement);
+                videoDiv.appendChild(deleteButton);
+                document.getElementById('video-container').appendChild(videoDiv);
+
+                uploadedVideos.push(videoUrl);
+            }
+        }
+
+        function deleteVideo(videoUrl) {
+            const videoDiv = Array.from(document.getElementById('video-container').children).find(child => {
+                const video = child.querySelector('video');
+                return video && video.src === videoUrl;
+            });
+
+            if (videoDiv) {
+                videoDiv.remove();
+                uploadedVideos = uploadedVideos.filter(url => url !== videoUrl);
+            }
+        }
+
+        function toggleSettingsMenu() {
+            const overlay = document.getElementById('popup-overlay');
+            const termsPopup = document.getElementById('terms-popup');
+            const privacyPopup = document.getElementById('privacy-popup');
+            
+            overlay.style.display = 'block';
+            termsPopup.style.display = 'block';
+            overlay.onclick = closePopups;
+        }
+
+        function closePopups() {
+            const overlay = document.getElementById('popup-overlay');
+            const termsPopup = document.getElementById('terms-popup');
+            const privacyPopup = document.getElementById('privacy-popup');
+            
+            overlay.style.display = 'none';
+            termsPopup.style.display = 'none';
+            privacyPopup.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
